@@ -36,5 +36,5 @@ export const useFetch = (url) => {
   }
   const _put = async (endpoint, payload) => {};
   const _delete = async (endpoint) => {};
-  return [_post];
+  return [{_get,_post,_put,_delete}];
 };

@@ -10,13 +10,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { useFetch } from "./FetchHook";
 import { v4 as uuid } from "uuid";
-
 const Amazon = () => {
-  const [_post] = useFetch(
+  const [api] = useFetch(
     "https://multi-account.sellernext.com/home/public/connector/profile/getAllCategory/"
   );
 
-  const [_post1] = useFetch(
+  const [api1] = useFetch(
     "https://multi-account.sellernext.com/home/public/connector/profile/getCategoryAttributes/"
   );
 
@@ -40,6 +39,7 @@ const Amazon = () => {
       setCount([]);
       setSubopts([]);
       setsubselected([]);
+      setFlag(false);
     }
     let arr = [...selected];
     arr = arr.filter((item, index) => index <= i);
@@ -58,7 +58,7 @@ const Amazon = () => {
   const getAttributes = async (para) => {
     const payload = {
       target_marketplace: "eyJtYXJrZXRwbGFjZSI6ImFsbCIsInNob3BfaWQiOm51bGx9",
-      user_id:"63329d7f0451c074aa0e15a8",
+      user_id: "63329d7f0451c074aa0e15a8",
       data: {
         barcode_exemption: false,
         browser_node_id: "1380072031",
@@ -75,7 +75,7 @@ const Amazon = () => {
       },
     };
     setLoading(true);
-    const ftch = await _post1(payload);
+    const ftch = await api1._post(payload);
     let arr1 = [];
     for (const i in ftch.data) {
       for (const j in ftch.data[i])
@@ -101,17 +101,17 @@ const Amazon = () => {
       const payload = {
         target_marketplace: "eyJtYXJrZXRwbGFjZSI6ImFsbCIsInNob3BfaWQiOm51bGx9",
         selected: payload1,
-        user_id:"63329d7f0451c074aa0e15a8",
+        user_id: "63329d7f0451c074aa0e15a8",
         target: {
           marketplace: "amazon",
           shopId: "530",
         },
       };
       setLoading(true);
-      const ftch = await _post(payload);
+      const ftch = await api._post(payload);
       if (!ftch.success) {
         setLoading(false);
-        // alert(ftch.message);
+        alert(ftch.message);
         return;
       }
       // console.log(ftch.data)
@@ -141,25 +141,13 @@ const Amazon = () => {
     setCount(arr1);
     let sel = [...subselected, ""];
     setsubselected(sel);
-    let arr = [...subopts];
-    for (let i = 0; i < arr.length; i++) {
-      if (subselected.includes(arr[i].value)) {
-        arr[i].disabled = true;
-      } else arr[i].disabled = false;
-    }
-    setSubopts(arr);
+    updateSuboption(subselected)
   };
   const SelectChange = (e, i) => {
     let arr = [...subselected];
     arr[i] = e;
     setsubselected(arr);
-    let arr2 = [...subopts];
-    for (let i = 0; i < arr2.length; i++) {
-      if (arr.includes(arr2[i].value)) {
-        arr2[i].disabled = true;
-      } else arr2[i].disabled = false;
-    }
-    setSubopts(arr2);
+    updateSuboption(arr)
   };
   const deleteHandler = (val, index) => {
     let arr = count.filter((item) => item.id !== val);
@@ -167,17 +155,20 @@ const Amazon = () => {
     let arr1 = subselected.filter((item, i) => i !== index);
     console.log(arr1);
     setsubselected(arr1);
-    let arr2 = [...subopts];
-    for (let i = 0; i < arr2.length; i++) {
-      if (arr1.includes(arr2[i].value)) {
-        arr2[i].disabled = true;
-      } else arr2[i].disabled = false;
-    }
-    setSubopts(arr2);
+    updateSuboption(arr1)
   };
+  const updateSuboption=(arr)=>{
+    let arr1 = [...subopts]
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr.includes(arr1[i].value)) {
+        arr1[i].disabled = true;
+      } else arr1[i].disabled = false;
+    }
+    setSubopts(arr1);
+  }
   return (
     <>
-      <Card>
+      <Card title="Category">
         {selected.map((item, i) => (
           <Select
             options={alloptions[i]}
@@ -189,7 +180,7 @@ const Amazon = () => {
       </Card>
       {flag && !loading && (
         <>
-          <Card sectioned>
+          <Card sectioned title="Sub-Category">
             {count.map((item, i) => (
               <Card key={item.id}>
                 <Select
